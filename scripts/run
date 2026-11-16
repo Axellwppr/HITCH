@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Run Python inside the project environment (created by scripts/setup): scripts/run -m MODULE ..., scripts/run FILE ...
+set -euo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+# A caller's PYTHONPATH first, then this checkout's packages (ahead of whatever the environment has installed);
+# the controller is not a package, its sources are imported directly.
+export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}$ROOT/src:$ROOT/third_party/motion_tracking/sim2real/src"
+export PYTHONUNBUFFERED=1 PYTHONNOUSERSITE=1
+export OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
+export XDG_CACHE_HOME="$ROOT/.cache"
+# Offscreen rendering (the simulated camera): EGL unless MUJOCO_GL says otherwise. PyOpenGL must use the same
+# platform, whatever the calling shell has set: MuJoCo refuses to render when the two disagree.
+export MUJOCO_GL="${MUJOCO_GL:-egl}"
+case "$MUJOCO_GL" in
+  egl | osmesa) export PYOPENGL_PLATFORM="$MUJOCO_GL" ;;
+  *) unset PYOPENGL_PLATFORM ;;
+esac
+exec "${WBC_PYTHON:-$ROOT/.venv/bin/python}" "$@"

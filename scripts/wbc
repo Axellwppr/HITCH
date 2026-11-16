@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# The session command line: scripts/wbc connect | observe | perceive | plan | execute | wait | status | close | ...
+set -euo pipefail
+exec "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/run" -m wbc.session.cli "$@"

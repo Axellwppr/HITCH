@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# The robot-side programs of a real G1, one per terminal on the robot computer (docs/REAL_ROBOT.md).
+set -euo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+BRIDGE="$ROOT/third_party/motion_tracking/g1_sim2real"
+RUNS="${WBC_DATA:-$ROOT/data}/runs"
+usage() {
+  cat >&2 <<'USAGE'
+Usage: scripts/robot COMMAND
+  build              build the C++ bridge and the camera capture worker (once)
+  bridge IFACE       1. DDS <-> UDP bridge; IFACE is the network interface on the robot's DDS network
+  controller         2. tracking controller; then press start and A on the remote
+  link [OPTIONS]     3. link server on 127.0.0.1:18767, once the controller is tracking (space pauses new motion)
+  vision [OPTIONS]   4. head-camera server on 127.0.0.1:18764
+USAGE
+  exit 2
+}
+command="${1:-}"
+(($#)) && shift
+case "$command" in
+  build)
+    bash "$BRIDGE/scripts/build.sh"
+    bash "$ROOT/vision/build.sh"
+    ;;
+  bridge)
+    export G1_NET="${1:?Usage: scripts/robot bridge IFACE}"
+    exec bash "$BRIDGE/scripts/run_bridge.sh"
+    ;;
+  controller)
+    mkdir -p "$RUNS"
+    run="$RUNS/run-$(date +%Y%m%d-%H%M%S)"
+    ln -sfn "$run" "$RUNS/latest"
+    echo "run directory: $run"
+    exec "$ROOT/scripts/run" -m wbc_link_server.launch.policy --backend real --directory "$run" "$@"
+    ;;
+  link)
+    exec "$ROOT/scripts/run" -m wbc_link_server.launch.control --attach "$RUNS/latest" --pause-key "$@"
+    ;;
+  vision)
+    export PYTHONPATH="$ROOT/vision${PYTHONPATH:+:$PYTHONPATH}"
+    exec "$ROOT/scripts/run" -m g1_vision.server --config "$ROOT/vision/config.json" "$@"
+    ;;
+  *) usage ;;
+esac

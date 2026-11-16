@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# One-time setup: fetch the tracking controller, then create the Python environment (.venv) with uv.
+set -euo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+CONTROLLER="$ROOT/third_party/motion_tracking"
+if [[ ! -f "$CONTROLLER/sim2real/src/deploy.py" ]]; then
+  git clone --depth 1 --branch sim-to-real-harness https://github.com/Axellwppr/motion_tracking.git "$CONTROLLER"
+fi
+exec uv sync --project "$ROOT" --locked --python 3.10 "$@"

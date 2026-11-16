@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# The agent loop: scripts/agent run TASK --backend NAME [--model M] | transcript EPISODE | tasks
+set -euo pipefail
+exec "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/run" -m wbc.agent "$@"

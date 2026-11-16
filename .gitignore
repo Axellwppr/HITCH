@@ -1,0 +1,13 @@
+.venv/
+.cache/
+/data/
+/third_party/
+__pycache__/
+*.pyc
+*.egg-info/
+.ruff_cache/
+*.log
+MUJOCO_LOG.TXT
+.env
+.env.*
+*.drawio

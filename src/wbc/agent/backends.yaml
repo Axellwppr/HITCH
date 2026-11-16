@@ -1,0 +1,26 @@
+# Model backends. Pick one with --backend NAME; give --model unless the profile names one.
+# api: the adapter in backends.py (APIS): responses, the OpenAI Responses API.
+# Other keys: api_key_env (the environment variable holding the key; none for a server without credentials),
+# extra_body (merged into every request), max_output_tokens, timeout_s, retries.
+
+fake:  # a scripted model behind a strict local Responses server (wbc.agent.fake), for trying the loop
+  api: responses
+  base_url: fake
+  model: fake-scripted
+
+hitch:  # the HITCH model behind an OpenAI-compatible server that serves the Responses API (for example vLLM)
+  api: responses
+  base_url: http://localhost:8000/v1
+  model: hitch  # the name the server serves the model under (or --model)
+  max_output_tokens: 32768
+  extra_body:
+    reasoning: {effort: medium}
+    chat_template_kwargs: {enable_thinking: false}
+
+openai:  # a hosted API; the key is read from the environment
+  api: responses
+  base_url: https://api.openai.com/v1
+  api_key_env: OPENAI_API_KEY
+  model: gpt-5  # or --model
+  extra_body:
+    reasoning: {effort: medium}

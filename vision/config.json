@@ -1,0 +1,13 @@
+{
+  "camera": {"helper": "build/capture_rgbd", "serial": "", "depth_height": 360},
+  "head": {
+    "port": "/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0",
+    "baud": 1000000, "speed": 300, "acceleration": 10,
+    "timeout_s": 8, "target_tolerance_deg": 2,
+    "trim_steps": 3, "trim_tolerance_deg": 0.3, "trim_limit_deg": 3,
+    "yaw": {"id": 1, "zero_tick": 2048, "direction": -1, "range_deg": [-48, 48]},
+    "pitch": {"id": 2, "zero_tick": 2048, "direction": -1, "range_deg": [0, 63]}
+  },
+  "calibration": "calibration.json",
+  "encoding": "zlib-delta-v1"
+}
